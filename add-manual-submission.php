@@ -23,6 +23,24 @@ try {
   $db = new PDO('sqlite:submissions.db');
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+  // Create table if it doesn't exist
+  $db->exec("
+    CREATE TABLE IF NOT EXISTS submissions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      people TEXT NOT NULL,
+      message TEXT,
+      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      ip_address TEXT,
+      user_agent TEXT,
+      admin_email_sent INTEGER DEFAULT 0,
+      confirm_email_sent INTEGER DEFAULT 0,
+      meta_api_sent INTEGER DEFAULT 0
+    )
+  ");
+
   // Check if this email already exists
   $checkStmt = $db->prepare("SELECT COUNT(*) FROM submissions WHERE email = :email AND submitted_at = :submitted_at");
   $checkStmt->execute([':email' => $email, ':submitted_at' => $submitted_at]);
