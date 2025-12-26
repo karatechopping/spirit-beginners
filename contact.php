@@ -15,6 +15,86 @@ if ($USE_SMTP) {
   require_once('smtp-mailer.php');
 }
 
+/**
+ * Send conversion event to Meta Conversion API
+ * @param string $email User's email address
+ * @param string $phone User's phone number
+ * @param string $name User's name
+ */
+function sendMetaConversionEvent($email, $phone, $name) {
+  global $META_PIXEL_ID, $META_ACCESS_TOKEN;
+
+  // Skip if Meta credentials are not configured
+  if (empty($META_PIXEL_ID) || empty($META_ACCESS_TOKEN) || $META_ACCESS_TOKEN === 'your-meta-access-token') {
+    error_log("Meta Conversion API: Credentials not configured, skipping event");
+    return;
+  }
+
+  try {
+    // Hash user data with SHA256 for privacy
+    $hashedEmail = hash('sha256', strtolower(trim($email)));
+    $hashedPhone = hash('sha256', preg_replace('/[^0-9]/', '', $phone)); // Remove non-numeric characters
+
+    // Split name into first and last name (best effort)
+    $nameParts = explode(' ', trim($name), 2);
+    $firstName = $nameParts[0] ?? '';
+    $lastName = $nameParts[1] ?? '';
+    $hashedFirstName = hash('sha256', strtolower($firstName));
+    $hashedLastName = hash('sha256', strtolower($lastName));
+
+    // Get client IP and user agent
+    $clientIpAddress = $_SERVER['REMOTE_ADDR'] ?? null;
+    $clientUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+
+    // Build event data payload
+    $eventData = [
+      'event_name' => 'Lead',
+      'event_time' => time(),
+      'action_source' => 'website',
+      'event_source_url' => 'https://spirit.nz/beginners/',
+      'user_data' => [
+        'em' => [$hashedEmail],
+        'ph' => [$hashedPhone],
+        'fn' => [$hashedFirstName],
+        'ln' => [$hashedLastName],
+        'client_ip_address' => $clientIpAddress,
+        'client_user_agent' => $clientUserAgent,
+      ]
+    ];
+
+    // Build the full payload
+    $payload = [
+      'data' => [$eventData]
+    ];
+
+    // Send to Meta Conversion API
+    $url = "https://graph.facebook.com/v21.0/{$META_PIXEL_ID}/events?access_token={$META_ACCESS_TOKEN}";
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+      'Content-Type: application/json'
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    // Log the response for debugging
+    if ($httpCode === 200) {
+      error_log("Meta Conversion API: Lead event sent successfully - Response: " . $response);
+    } else {
+      error_log("Meta Conversion API: Failed to send event - HTTP {$httpCode} - Response: " . $response);
+    }
+
+  } catch (Exception $e) {
+    error_log("Meta Conversion API error: " . $e->getMessage());
+    // Don't fail the form submission if Meta API fails
+  }
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
   echo "Method not allowed";
@@ -111,6 +191,9 @@ try {
   }
 
   if ($adminEmailSent && $confirmEmailSent) {
+    // Send Meta Conversion API event
+    sendMetaConversionEvent($email, $phone, $name);
+
     header("Location: index.html?success=1#contact");
     exit;
   }

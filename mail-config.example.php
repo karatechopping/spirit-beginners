@@ -24,6 +24,10 @@ $SMTP_SECURE = "ssl"; // "tls" or "ssl"
 $SMTP_USERNAME = "brett@spirit.net"; // Your SMTP username
 $SMTP_PASSWORD = "your-app-password"; // Your SMTP password or app password
 
+// Meta Pixel & Conversion API Settings
+$META_PIXEL_ID = "846088281552866"; // Your Meta Pixel ID
+$META_ACCESS_TOKEN = "your-meta-access-token"; // Get this from Meta Events Manager > Settings > Conversions API
+
 // Confirmation email content (sent to people who submit the form)
 // You can use simple HTML tags like <p>, <strong>, <br>, etc.
 $CONFIRMATION_EMAIL_SUBJECT = "Thanks for Registering - Free Beginner Classes";
