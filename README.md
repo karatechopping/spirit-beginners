@@ -75,15 +75,19 @@ The form collects:
 
 1. User visits the page → **Meta Pixel tracks PageView**
 2. User submits the form
-3. **Two emails are sent:**
+3. **Form data saved to database immediately** (SQLite backup)
+   - Ensures no data is lost even if emails fail
+   - Tracks submission status for all operations
+4. **Two emails are sent:**
    - **Admin notification**: Plain text email to you with all form details
    - **Confirmation email**: HTML email to the submitter with your custom message
-4. **Meta Conversion API fires "Lead" event** (server-side)
+5. **Meta Conversion API fires "Lead" event** (server-side)
    - Sends hashed user data (email, phone, name) for better ad matching
    - Works even if user has ad blockers or closes browser
    - More reliable than client-side pixel tracking
-5. User sees success message on the page
-6. Both emails must send successfully for the form to show success
+6. **Database updated with success/failure status**
+7. User sees success message on the page
+8. Both emails must send successfully for the form to show success
 
 ### Meta Pixel & Conversion API Tracking
 
@@ -114,10 +118,52 @@ This site includes **Meta (Facebook) Pixel** tracking with server-side **Convers
 3. Go to [Meta Events Manager](https://business.facebook.com/events_manager2) > Test Events
 4. You should see both PageView (pixel) and Lead (server) events
 
+### Database Backup System
+
+All form submissions are automatically saved to a **SQLite database** (`submissions.db`) as a backup, ensuring no data is lost even if emails fail.
+
+**Features:**
+- ✅ Automatic backup of all form submissions
+- ✅ Tracks email delivery status (admin email, confirmation email, Meta API)
+- ✅ Stores IP address and user agent for security
+- ✅ Searchable and exportable data
+
+**Viewing Submissions:**
+1. Go to: `https://spirit.nz/beginners/view-submissions.php`
+2. Login with password (default: `changeme123` - **CHANGE THIS!**)
+3. View all submissions in a clean admin interface
+4. Export to CSV for analysis in Excel/Google Sheets
+
+**Changing the Admin Password:**
+Edit `view-submissions.php` and change line 8:
+```php
+$ADMIN_PASSWORD = 'your-secure-password-here';
+```
+
+**Database Location:**
+- File: `submissions.db` (in the same directory as contact.php)
+- Automatically created on first form submission
+- Gitignored for privacy (not stored in repository)
+- Can be downloaded via FTP for backup
+
+**Database Schema:**
+- `id`: Auto-incrementing submission ID
+- `name`, `email`, `phone`, `people`, `message`: Form fields
+- `submitted_at`: Timestamp of submission
+- `ip_address`, `user_agent`: Client information
+- `admin_email_sent`, `confirm_email_sent`, `meta_api_sent`: Status flags (0 or 1)
+
+**Security:**
+- Database file is gitignored (never committed to repository)
+- Admin viewer is password-protected
+- User data is stored securely in SQLite format
+- Can be deleted anytime without affecting the form
+
 ### Troubleshooting
 
 If you're not receiving emails:
 1. Check that `mail-config.php` exists and has correct settings
 2. Verify your server can send mail (many shared hosts can)
 3. Check spam/junk folders
-4. Consider using a transactional email service (SendGrid, Mailgun, etc.) for better deliverability
+4. **Check the database viewer** - submissions are saved even if emails fail
+5. Consider using a transactional email service (SendGrid, Mailgun, etc.) for better deliverability
