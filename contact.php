@@ -224,6 +224,9 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 $db = initDatabase();
 $submissionId = saveSubmission($db, $name, $email, $phone, $people, $message);
 
+// Send Meta Conversion API event immediately (on button press, not email success)
+$metaApiSuccess = sendMetaConversionEvent($email, $phone, $name);
+
 // Prepare admin notification email
 $subject = "Beginner TKD Signup: $name";
 
@@ -289,9 +292,6 @@ try {
   }
 
   if ($adminEmailSent && $confirmEmailSent) {
-    // Send Meta Conversion API event
-    $metaApiSuccess = sendMetaConversionEvent($email, $phone, $name);
-
     // Update database with success status
     updateSubmissionStatus($db, $submissionId, true, true, $metaApiSuccess);
 
@@ -300,7 +300,7 @@ try {
   }
 
   // Update database with partial success (if only one email sent)
-  updateSubmissionStatus($db, $submissionId, $adminEmailSent, $confirmEmailSent, false);
+  updateSubmissionStatus($db, $submissionId, $adminEmailSent, $confirmEmailSent, $metaApiSuccess);
 
 } catch (Exception $e) {
   error_log("Email sending failed: " . $e->getMessage());
