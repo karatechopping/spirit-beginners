@@ -45,7 +45,12 @@ class SMTPMailer
             $message = "From: {$fromName} <{$fromEmail}>\r\n";
             $message .= "To: <{$to}>\r\n";
             if ($replyTo) {
-                $message .= "Reply-To: <{$replyTo}>\r\n";
+                // Check if replyTo already contains angle brackets (name+email format)
+                if (strpos($replyTo, '<') !== false) {
+                    $message .= "Reply-To: {$replyTo}\r\n";
+                } else {
+                    $message .= "Reply-To: <{$replyTo}>\r\n";
+                }
             }
             $message .= "Subject: {$subject}\r\n";
             $message .= "MIME-Version: 1.0\r\n";

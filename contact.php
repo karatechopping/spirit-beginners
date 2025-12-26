@@ -258,7 +258,7 @@ try {
       $body,
       $MAIL_FROM_NAME,
       $MAIL_FROM_ADDRESS,
-      $email,
+      "$name <$email>",
       false
     );
 
@@ -269,7 +269,7 @@ try {
       $confirmBody,
       $MAIL_FROM_NAME,
       $MAIL_FROM_ADDRESS,
-      $MAIL_REPLY_TO,
+      'brett@spirit.nz',
       true
     );
 
@@ -284,7 +284,7 @@ try {
 
     $confirmHeaders = [];
     $confirmHeaders[] = "From: $MAIL_FROM_NAME <$MAIL_FROM_ADDRESS>";
-    $confirmHeaders[] = "Reply-To: $MAIL_REPLY_TO";
+    $confirmHeaders[] = "Reply-To: brett@spirit.nz";
     $confirmHeaders[] = "Content-Type: text/html; charset=UTF-8";
     $confirmHeaders[] = "MIME-Version: 1.0";
 
