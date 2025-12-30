@@ -36,7 +36,7 @@ $CONFIRMATION_EMAIL_BODY = "
 
 <p><strong>Thank you for registering for our free beginner Taekwon-Do classes!</strong></p>
 
-<p>We've received your registration and will be in touch within 24 hours to confirm your spot and answer any questions.</p>
+<p>We've received your registration and will be in touch soon to confirm your spot and answer any questions.</p>
 
 <p>In the meantime, here's what you need to know:</p>
 
