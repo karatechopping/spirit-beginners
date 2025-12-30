@@ -1,4 +1,4 @@
 old
 mail-config.php
-mail-config-*.php
-submissions.db
+mail-config-*
+submissions-*.db

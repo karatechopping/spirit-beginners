@@ -80,7 +80,7 @@
         $messageType = 'error';
       } else {
         try {
-          $db = new PDO('sqlite:submissions.db');
+          $db = new PDO('sqlite:submissions-newlands.db');
           $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
           // Fetch the submission details
@@ -131,7 +131,7 @@
       echo "<input type='hidden' name='id' value='{$submission['id']}'>";
       echo "<input type='hidden' name='confirm' value='yes'>";
       echo "<button type='submit' class='btn btn-danger'>Yes, Delete This Submission</button> ";
-      echo "<a href='delete-submission.php' class='btn' style='background: #6c757d; color: white; text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 4px;'>Cancel</a>";
+      echo "<a href='delete-newlands.php' class='btn' style='background: #6c757d; color: white; text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 4px;'>Cancel</a>";
       echo "</form>";
     } else {
       // Show form to enter ID
@@ -145,7 +145,7 @@
         <button type="submit" class="btn btn-primary">Find Submission</button>
       </form>
 
-      <p style="margin-top: 2rem;"><a href="view-submissions.php">← Back to View Submissions</a></p>
+      <p style="margin-top: 2rem;"><a href="view-newlands.php">← Back to View Submissions</a></p>
       <?php
     }
     ?>
